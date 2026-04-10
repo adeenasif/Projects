@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Fragments | The Hellfire Concordance</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
+  
+    :root {
+      --bg: #0a0101;
+      --bg-dark: #030000;
+      --border: #4a1a1a;
+      --text: #e6c8a0;
+      --accent: #ff6a2e;
+      --accent-glow: #ff3a1a;
+      --solved: #ff5500;
+      --solved-glow: #ff3300;
+      --glint: #ffaa44;
+      --ember: #ff4400;
+      --blood: #8b0000;
+      --flame: #ff6600;
+    }
+  
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+  
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier Prime', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+  
+    /* Hellfire grain effect */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.12'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.8;
+      mix-blend-mode: overlay;
+    }
+  
+    /* Ember particles floating */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 40%, rgba(255, 68, 0, 0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, rgba(255, 100, 0, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 998;
+    }
+
+  .game-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0 20px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+    z-index: 2;
+    width: 100%;
+  }
+  header h1 {
+    font-family: 'Special Elite', cursive;
+    font-size: clamp(1rem, 2.2vw, 1.6rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-shadow: 0 0 20px #ff4400, 0 0 40px rgba(255, 68, 0, 0.5);
+    font-weight: 400;
+    animation: flicker 3s infinite;
+  }
+  @keyframes flicker {
+    0%, 100% { text-shadow: 0 0 20px #ff4400, 0 0 40px rgba(255, 68, 0, 0.5); opacity: 1; }
+    50% { text-shadow: 0 0 25px #ff6600, 0 0 60px rgba(255, 102, 0, 0.7); opacity: 0.95; }
+  }
+  header p {
+    margin-top: 6px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: #aa5533;
+    font-style: italic;
+  }
+
+  /* HUD removed - timer and moves counter eliminated as requested */
+
+  #stage {
+    position: relative;
+    width: 860px;
+    height: 560px;
+    background: #0a0200;
+    border: 2px solid #ff4411;
+    box-shadow: 0 0 40px rgba(255, 68, 0, 0.3), inset 0 0 30px rgba(255, 68, 0, 0.2);
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .side-artifact {
+    width: 380px;
+    height: auto;
+    min-height: 560px;
+    background: #1a0502;
+    border: 1px solid #ff4422;
+    border-radius: 4px;
+    padding: 16px 12px;
+    box-shadow: 0 0 30px rgba(255, 68, 0, 0.2);
+    backdrop-filter: blur(2px);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.artifact-text {
+    font-size: 0.8rem;
+    text-align: center;
+    letter-spacing: 0.1em;
+    color: #d97a3a;
+    line-height: 1.6;
+    font-style: italic;
+    padding: 12px 7px;
+    text-shadow: 0 0 4px rgba(255,42,10,0.3);
+    flex-shrink: 0;
+}
+
+.artifact-image {
+    width: 100%;
+    height: 320px;
+    aspect-ratio: 1 / 1;
+    background: #0a0200;
+    border: 1px solid #ff4422;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.artifact-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0.75;
+    transition: opacity 0.3s;
+}
+  .artifact-header {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-align: center;
+    color: #ff8844;
+    margin-bottom: 7px;
+    border-bottom: 1px solid #ff4422;
+    padding-bottom: 4px;
+    text-shadow: 0 0 6px #ff4400;
+  }
+
+  .corner-mark {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 12;
+  }
+  .cm-tl { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+  .cm-tr { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+  .cm-bl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+  .cm-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+  .veil-overlay {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,26,10,0.08) 2px, rgba(139,26,10,0.08) 3px);
+    pointer-events: none;
+    z-index: 9;
+  }
+
+  .layer {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    cursor: grab;
+    will-change: left, top;
+}
+  .layer:active { cursor: grabbing; }
+  .layer img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    display: block;
+    opacity: 0.72;
+    mix-blend-mode: screen;
+  }
+
+  .fragment-tag {
+    position: absolute;
+    bottom: -22px;
+    left: 8px;
+    font-size: 0.45rem;
+    letter-spacing: 0.2em;
+    color: #b55a3a;
+    background: rgba(10,3,1,0.9);
+    padding: 2px 8px;
+    backdrop-filter: blur(2px);
+    border-radius: 12px;
+    pointer-events: none;
+    font-family: monospace;
+    border: 0.5px solid var(--border);
+  }
+  
+  .description {
+    font-size: 10px;
+  }
+
+  /* Status zone completely removed - no timer, no dots, no message display */
+
+  .action-bar {
+    display: flex;
+    gap: 18px;
+    margin-top: 22px;
+    z-index: 2;
+  }
+  button {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 7px 20px;
+    border: 1px solid var(--border);
+    background: rgba(10,3,1,0.9);
+    color: #b55a3a;
+    cursor: pointer;
+    transition: 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  button:hover {
+    border-color: var(--accent);
+    color: var(--glint);
+    background: rgba(139,26,10,0.3);
+    box-shadow: 0 0 12px rgba(255,42,10,0.3);
+  }
+
+  @media (max-width: 950px) {
+    .game-container {
+      gap: 20px;
+    }
+    #stage { width: 560px; height: 560px; }
+    .layer { width: 260px; height: 260px; }
+    .side-artifact { width: 280px; height: auto; }
+  }
+
+  @media (max-width: 820px) {
+    .game-container {
+      flex-direction: column;
+      align-items: center;
+    }
+    #stage { width: 460px; height: 460px; }
+    .layer { width: 210px; height: 210px; }
+    .side-artifact { width: 380px; margin-top: 10px; height: auto; }
+  }
+
+  @media (max-width: 620px) {
+    #stage { width: 360px; height: 360px; }
+    .layer { width: 170px; height: 170px; }
+    .fragment-tag { font-size: 0.4rem; bottom: -18px; }
+    .side-artifact { width: 320px; height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⌇ PARALLEL SIGNAL CONVERGENCE ⌇</h1>
+  <p>— 🔥 SIGNAL OVERLAP 🔥 —</p>
+</header>
+
+<!-- HUD removed entirely - timer and moves counter eliminated -->
+
+<div class="game-container">
+  <div id="stage">
+    <div class="corner-mark cm-tl"></div>
+    <div class="corner-mark cm-tr"></div>
+    <div class="corner-mark cm-bl"></div>
+    <div class="corner-mark cm-br"></div>
+    <div class="veil-overlay"></div>
+
+    <div class="layer" id="layerA">
+      <img src="images/1.png" alt="shard">
+      <!-- <span class="fragment-tag">[ α ]</span> -->
+    </div>
+
+    <div class="layer" id="layerB">
+      <img src="images/2.png" alt="shard">
+      <!-- <span class="fragment-tag">[ β ]</span> -->
+    </div>
+  </div>
+
+  <div class="side-artifact" id="sideArtifact">
+    <div class="artifact-header">◈ THE ANCIENT RELIC ◈</div>
+    <div class="heading-artifact"><p class="artifact-text">Hawkins is bleeding through again.<br>
+        Two fragments. Two realities.<br>
+        Individually useless… but together?<br>
+        They reveal something hidden.<br>
+        Overlay them. Adjust them.<br>
+        Make the worlds match.<br>
+        Only then will the path show itself.<br>
+        — Choose carefully, not everything you reveal is meant to be found.
+        </p></div>
+
+    <div class="artifact-image">
+      <img src="images/key.png" alt="mysterious artifact" id="artifactImage">
+    </div>
+  </div>
+</div>
+
+<!-- Status zone completely removed - no message, no dots, no timer display -->
+
+<div class="action-bar">
+  <button id="resetButton">⟳ RESET</button>
+</div>
+
+<script>
+  // Target offset for alignment (kept for visual alignment detection but no UI effects)
+  const TARGET_DX = -21;
+  const TARGET_DY = 13;
+  const PRECISION = 2;
+
+  // START POSITIONS - adjusted for larger layers
+  const START_A = { left: 20, top: 75 };
+  const START_B = { left: 435, top: 75 };
+  
+  // DOM elements
+  const stageDiv = document.getElementById('stage');
+  const layerA = document.getElementById('layerA');
+  const layerB = document.getElementById('layerB');
+  
+  let dragActive = null;
+  // Timer and move counter completely removed - no tracking variables needed
+  
+  function getPosition(el) {
+    return {
+      left: parseFloat(el.style.left) || 0,
+      top: parseFloat(el.style.top) || 0
+    };
+  }
+  
+  function clampMovement(el, left, top) {
+    const maxLeft = stageDiv.clientWidth - el.clientWidth + 70;
+    const maxTop = stageDiv.clientHeight - el.clientHeight + 70;
+    return {
+      left: Math.max(-70, Math.min(maxLeft, left)),
+      top: Math.max(-70, Math.min(maxTop, top))
+    };
+  }
+  
+  function setLayerPos(el, left, top) {
+    const clamped = clampMovement(el, left, top);
+    el.style.left = clamped.left + 'px';
+    el.style.top = clamped.top + 'px';
+  }
+  
+  // Alignment check - visual feedback removed entirely (no dots, no status messages)
+  // Function kept for internal logic but doesn't affect UI elements (all removed)
+  function checkAlignment() {
+    const posA = getPosition(layerA);
+    const posB = getPosition(layerB);
+    
+    const currentDX = posB.left - posA.left;
+    const currentDY = posB.top - posA.top;
+    
+    const dxDiff = Math.abs(currentDX - TARGET_DX);
+    const dyDiff = Math.abs(currentDY - TARGET_DY);
+    const exactMatch = (dxDiff <= PRECISION && dyDiff <= PRECISION);
+    
+    // No visual feedback elements exist anymore - timer, dots, status messages all removed
+    // The alignment detection remains functional in background but doesn't affect any display
+    
+    return exactMatch;
+  }
+  
+  function onDragStart(e) {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const point = e.touches ? e.touches[0] : e;
+    const pos = getPosition(el);
+    dragActive = {
+      el: el,
+      startX: point.clientX,
+      startY: point.clientY,
+      origLeft: pos.left,
+      origTop: pos.top
+    };
+    layerA.style.zIndex = '3';
+    layerB.style.zIndex = '3';
+    el.style.zIndex = '10';
+    
+    // Timer functionality completely removed - no timer interval starts on drag
+  }
+  
+  function onDragMove(e) {
+    if (!dragActive) return;
+    const point = e.touches ? e.touches[0] : e;
+    const dx = point.clientX - dragActive.startX;
+    const dy = point.clientY - dragActive.startY;
+    const newLeft = dragActive.origLeft + dx;
+    const newTop = dragActive.origTop + dy;
+    setLayerPos(dragActive.el, newLeft, newTop);
+    // Call checkAlignment but no UI updates exist
+    checkAlignment();
+  }
+  
+  function onDragEnd() {
+    if (!dragActive) return;
+    // Move counter completely removed - no increment tracking
+    dragActive = null;
+    layerA.style.zIndex = '4';
+    layerB.style.zIndex = '3';
+    // Alignment check without UI effects
+    checkAlignment();
+  }
+  
+  layerA.addEventListener('mousedown', onDragStart);
+  layerB.addEventListener('mousedown', onDragStart);
+  layerA.addEventListener('touchstart', onDragStart, { passive: false });
+  layerB.addEventListener('touchstart', onDragStart, { passive: false });
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('touchmove', onDragMove, { passive: false });
+  document.addEventListener('mouseup', onDragEnd);
+  document.addEventListener('touchend', onDragEnd);
+  
+  function fullReset() {
+    // Timer interval completely removed - no timer to clear
+    setLayerPos(layerA, START_A.left, START_A.top);
+    setLayerPos(layerB, START_B.left, START_B.top);
+    
+    layerA.style.zIndex = '4';
+    layerB.style.zIndex = '3';
+    
+    dragActive = null;
+    
+    // No visual feedback elements to reset - all removed
+  }
+  
+  document.getElementById('resetButton').addEventListener('click', () => fullReset());
+  
+  function initialize() {
+    setLayerPos(layerA, START_A.left, START_A.top);
+    setLayerPos(layerB, START_B.left, START_B.top);
+    // Move counter and timer variables removed - no initialization needed
+    layerA.style.zIndex = '4';
+    layerB.style.zIndex = '3';
+    // Timer interval completely removed
+  }
+  
+  initialize();
+  
+  // Optional: Add subtle visual effect when fragments align (non-intrusive, maintains design integrity)
+  // This adds a faint glow when aligned without disrupting the original aesthetic
+  // No timer, no text, no dots - just an ambient visual cue that respects the dark theme
+  let lastAlignmentState = false;
+  
+  function updateAlignmentGlow() {
+    const isAligned = checkAlignment();
+    const stageElement = document.getElementById('stage');
+    
+    if (isAligned && !lastAlignmentState) {
+      // Add temporary subtle border glow when aligned - purely visual, no text or timer
+      stageElement.style.transition = 'box-shadow 0.3s ease';
+      stageElement.style.boxShadow = '0 0 45px rgba(255, 68, 0, 0.6), inset 0 0 35px rgba(255, 68, 0, 0.4)';
+      setTimeout(() => {
+        if (checkAlignment()) {
+          // Keep subtle glow while maintaining alignment
+          stageElement.style.boxShadow = '0 0 35px rgba(255, 68, 0, 0.4), inset 0 0 25px rgba(255, 68, 0, 0.3)';
+        }
+      }, 200);
+    } else if (!isAligned) {
+      stageElement.style.boxShadow = '0 0 40px rgba(255, 68, 0, 0.3), inset 0 0 30px rgba(255, 68, 0, 0.2)';
+      stageElement.style.transition = 'box-shadow 0.2s ease';
+    }
+    
+    lastAlignmentState = isAligned;
+  }
+  
+  // Override checkAlignment to also trigger visual glow but maintain no text/timer elements
+  const originalCheckAlignment = checkAlignment;
+  window.checkAlignment = function() {
+    const result = originalCheckAlignment();
+    updateAlignmentGlow();
+    return result;
+  };
+  
+  // Replace the checkAlignment reference in drag handlers to use updated version
+  // Re-bind to ensure alignment glow works without affecting removed elements
+  const enhancedCheckAlignment = function() {
+    const posA = getPosition(layerA);
+    const posB = getPosition(layerB);
+    const currentDX = posB.left - posA.left;
+    const currentDY = posB.top - posA.top;
+    const dxDiff = Math.abs(currentDX - TARGET_DX);
+    const dyDiff = Math.abs(currentDY - TARGET_DY);
+    const exactMatch = (dxDiff <= PRECISION && dyDiff <= PRECISION);
+    
+    // Update glow effect without any text/timer elements
+    const stageElement = document.getElementById('stage');
+    if (exactMatch && !lastAlignmentState) {
+      stageElement.style.transition = 'box-shadow 0.3s ease';
+      stageElement.style.boxShadow = '0 0 45px rgba(255, 68, 0, 0.6), inset 0 0 35px rgba(255, 68, 0, 0.4)';
+      setTimeout(() => {
+        const newPosA = getPosition(layerA);
+        const newPosB = getPosition(layerB);
+        const newDX = newPosB.left - newPosA.left;
+        const newDY = newPosB.top - newPosA.top;
+        const newDxDiff = Math.abs(newDX - TARGET_DX);
+        const newDyDiff = Math.abs(newDY - TARGET_DY);
+        if (newDxDiff <= PRECISION && newDyDiff <= PRECISION) {
+          stageElement.style.boxShadow = '0 0 35px rgba(255, 68, 0, 0.4), inset 0 0 25px rgba(255, 68, 0, 0.3)';
+        }
+      }, 200);
+    } else if (!exactMatch) {
+      stageElement.style.boxShadow = '0 0 40px rgba(255, 68, 0, 0.3), inset 0 0 30px rgba(255, 68, 0, 0.2)';
+      stageElement.style.transition = 'box-shadow 0.2s ease';
+    }
+    lastAlignmentState = exactMatch;
+    return exactMatch;
+  };
+  
+  // Replace the alignment check function used in drag events
+  window.alignmentCheck = enhancedCheckAlignment;
+  
+  // Override the original onDragMove and onDragEnd to use enhanced alignment
+  const originalOnDragMove = onDragMove;
+  const enhancedOnDragMove = function(e) {
+    if (!dragActive) return;
+    const point = e.touches ? e.touches[0] : e;
+    const dx = point.clientX - dragActive.startX;
+    const dy = point.clientY - dragActive.startY;
+    const newLeft = dragActive.origLeft + dx;
+    const newTop = dragActive.origTop + dy;
+    setLayerPos(dragActive.el, newLeft, newTop);
+    enhancedCheckAlignment();
+  };
+  
+  const enhancedOnDragEnd = function() {
+    if (!dragActive) return;
+    dragActive = null;
+    layerA.style.zIndex = '4';
+    layerB.style.zIndex = '3';
+    enhancedCheckAlignment();
+  };
+  
+  // Remove old listeners and add enhanced ones
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('touchmove', onDragMove);
+  document.removeEventListener('mouseup', onDragEnd);
+  document.removeEventListener('touchend', onDragEnd);
+  
+  document.addEventListener('mousemove', enhancedOnDragMove);
+  document.addEventListener('touchmove', enhancedOnDragMove, { passive: false });
+  document.addEventListener('mouseup', enhancedOnDragEnd);
+  document.addEventListener('touchend', enhancedOnDragEnd);
+  
+  // Update reset function to use enhanced check
+  const originalFullReset = fullReset;
+  window.fullReset = function() {
+    setLayerPos(layerA, START_A.left, START_A.top);
+    setLayerPos(layerB, START_B.left, START_B.top);
+    layerA.style.zIndex = '4';
+    layerB.style.zIndex = '3';
+    dragActive = null;
+    enhancedCheckAlignment();
+  };
+  
+  document.getElementById('resetButton').addEventListener('click', () => window.fullReset());
+  
+  // Initialize with alignment check
+  enhancedCheckAlignment();
+</script>
+</body>
+</html>

@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logic Puzzle</title>
+    <style>
+               * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Add/update these styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%; /* Ensure full width */
+            height: 100%; /* Ensure full height */
+            overflow: auto;
+            font-family: 'Roboto', sans-serif;
+            background: #001f3f;
+            color: #00bfff;
+        }
+
+        .geometric-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.2;
+            transform-origin: center;
+        }
+
+        .square {
+            width: 40px;
+            height: 40px;
+            background: #f72585;
+            animation: rotate 20s infinite linear;
+        }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            animation: pulse 15s infinite alternate;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #7209b7;
+            animation: float 12s infinite ease-in-out;
+        }
+
+        .rectangle {
+            width: 80px;
+            height: 30px;
+            background: #4361ee;
+            animation: slide 18s infinite linear;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.1;
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) translateX(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) translateX(20px) rotate(180deg);
+            }
+            100% {
+                transform: translateY(0px) translateX(0px) rotate(360deg);
+            }
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(-100px) rotate(0deg);
+            }
+            50% {
+                transform: translateX(100px) rotate(180deg);
+            }
+            100% {
+                transform: translateX(-100px) rotate(360deg);
+            }
+        }
+
+
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background-color: white;
+            opacity: 0.5;
+            animation: sparkle 8s infinite linear;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+
+
+        @keyframes pulse-overlay {
+            0% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            position: relative;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .left-column {
+            flex: 1;
+            min-width: 300px;
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 20;
+        }
+
+        .board-container {
+            flex: 2;
+            min-width: 500px;
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 20;
+            overflow-x: auto;
+        }
+
+        /* Kakuro Board Styles - Exact match to Kakuro Conquest */
+        .board {
+            border-collapse: collapse;
+            margin: 0 auto;
+            background: white;
+            width: 500px;
+            height: 600px;
+        }
+
+        .cellShaded {
+            background: #060226 !important;
+            border: 1px solid #968c8c !important;
+            width: 40px;
+            height: 40px;
+        }
+
+        .cellTotal {
+            background: #060226;
+            border: 1px solid #968c8c;
+            width: 40px;
+            height: 40px;
+            position: relative;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+.cellTotal::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to top right,
+        transparent 49%,
+        #555 49%,
+        #555 51%,
+        transparent 51%
+    );
+}
+        .topNumber, .bottomNumber {
+            position: absolute;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            z-index: 2;
+        }
+
+        .topNumber {
+            top: 2px;
+            right: 4px;
+            color: #3498db; /* Blue for down clues */
+        }
+
+        .bottomNumber {
+            bottom: 2px;
+            left: 4px;
+            color: #e74c3c; /* Red for across clues */
+        }
+
+        .topNumberHelp, .bottomNumberHelp {
+            position: absolute;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .topNumberHelp {
+            top: 2px;
+            right: 4px;
+            color: #3498db;
+        }
+
+        .bottomNumberHelp {
+            bottom: 2px;
+            left: 4px;
+            color: #e74c3c;
+        }
+
+        .topNumberHelp:hover, .bottomNumberHelp:hover {
+            text-decoration: underline;
+        }
+
+        .cellNumber {
+            background: white;
+            border: 1px solid #968c8c;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .cellNumberInput {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #968c8c;
+            background: transparent;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            color: #2c3e50;
+            outline: none;
+        }
+
+        .cellNumberInput:focus {
+            background: #e8f4fc;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .inputbutton {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            position: relative;
+            z-index: 20;
+        }
+
+        .inputbutton:hover {
+            background: #2980b9;
+        }
+
+        .checkbutton {
+            background: #110230;
+        }
+
+        .checkbutton:hover {
+            background: #0c5294;
+        }
+
+        .text1, .text2 {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .text1 {
+            font-weight: bold;
+            color: #ecf0f1;
+        }
+
+        .text2 {
+            color: #bdc3c7;
+        }
+
+        .text2 a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .text2 a:hover {
+            text-decoration: underline;
+        }
+
+        .puzzle-info {
+            background: rgba(52, 152, 219, 0.2);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #3498db;
+        }
+
+        .instructions {
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+            position: relative;
+            z-index: 20;
+        }
+
+        .instructions h3 {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            position: relative;
+            color: #bdc3c7;
+        }
+
+        .instructions li:before {
+            content: "•";
+            color: #3498db;
+            position: absolute;
+            left: -10px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 8px;
+            position: relative;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer h2 {
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .left-column, .board-container {
+                min-width: 100%;
+            }
+            
+            .cellShaded, .cellTotal, .cellNumber {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .cellNumberInput {
+                font-size: 16px;
+            }
+        }
+        /* RRO Modal Overlay */
+.rro-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal Box */
+.rro-modal-content {
+    background: #0b1c2d;
+    border: 1px solid #00bfff55;
+    border-radius: 12px;
+    padding: 30px 40px;
+    width: 420px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,191,255,0.3);
+    animation: rroFadeIn 0.4s ease;
+}
+
+.rro-modal-content h2 {
+    color: #00bfff;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.rro-modal-content p {
+    color: #cfefff;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.rro-meta {
+    font-size: 13px;
+    color: #7fbcd2;
+    margin-bottom: 25px;
+}
+
+.rro-meta div {
+    margin: 4px 0;
+}
+
+.rro-modal-content button {
+    background: #00bfff;
+    color: #001f3f;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.rro-modal-content button:hover {
+    background: #4cc9f0;
+}
+
+@keyframes rroFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+        /* Anti-cheat protection */
+        .anti-cheat {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a192f;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            #sudoku-grid {
+                width: 90vw;
+                height: 90vw;
+                max-width: 400px;
+                max-height: 400px;
+            }
+            
+            .cell {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .num-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+                #pre-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, #1a1a2e, #16213e, #0f3460);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        #pre-loader h2 {
+            font-size: 4rem;
+            font-weight: bold;
+            color: rgb(216, 199, 225);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeInOut 2s infinite;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Anti-cheat protection overlay -->
+    <div id="anti-cheat" class="anti-cheat">
+        <div id="pre-loader">
+            <h2 >🕵🏻 Incognito Investigation</h2>
+            
+        </div>
+    </div>
+    <div class="geometric-background" id="geometric-background"></div>
+    <div class="particles" id="particles"></div>
+    <div class="gradient-overlay"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>LOGICAL INTERFACE</h1>
+            <h2>Restricted Continuity Validation Grid</h2>
+        </div>
+
+        <div class="game-container">
+            <div class="left-column">
+                <div class="text2">
+                    This interface evaluates pattern compliance under controlled constraints. Each sequence must resolve to the declared aggregate without duplication. Deviation indicates instability.<br><br>
+                </div>
+                <div class="text2">
+                    Kakuro Hint: Click on a clue number to see total sums.<br><br>
+                </div>
+                <div class="puzzle-info">
+                    <div class="text1">Active Module: RRO-CV-08</div>
+                     
+                    <div class="text2">Assistance Protocol: Select a constraint marker to review authorized value ranges.</div>
+                <br><br>
+                <div class="text1">SYSTEM STATUS</div>
+                <div class="text2">•  Clearance Level: Expert</div>
+                <div class="text2">•  Continuity Monitor: Active</div>
+                <div class="text2">•  Audit Channel: Live</div>
+                <div class="text2">•  Observer Node: Connected</div>
+                <div class="text2">•  Session Logged</div>
+            </div>
+        </div>
+            <div class="board-container">
+                <form name="puzzle" autocomplete="off" method="post" action="#" novalidate>
+                <table class="board" cellpadding=0 cellspacing=0 id="CurrentKakuroBoard">
+    <!-- Row 1 - 10 cells -->
+    <tr>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">12</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">31</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">8</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">10</div>
+        </td>
+        <td class="cellShaded"></td>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">3</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">17</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">32</div>
+        </td>
+    </tr>
+    <!-- Row 2 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">29</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_4" value="" maxlength="1"></td>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">12</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_2_7" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 3 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">14</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_4" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">14</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">18</div>
+            <div class="bottomNumber">30</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_3_7" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 4 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">7</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_2" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">13</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_4" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">9</div>
+            <div class="bottomNumber">30</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_4_6" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 5 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">9</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_2" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">29</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">28</div>
+            <div class="bottomNumber">16</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_5_7" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 6 - 10 cells -->
+    <tr>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">44</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_7" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_6_8" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 7 - 10 cells -->
+    <tr>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">33</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">8</div>
+            <div class="bottomNumber">18</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_7_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_7_2" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">8</div>
+            <div class="bottomNumber">24</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_7_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_7_4" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">21</div>
+        </td>
+        <td class="cellShaded"></td>
+    </tr>
+    <!-- Row 8 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">43</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_7" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_8_8" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">26</div>
+        </td>
+    </tr>
+    <!-- Row 9 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">30</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_5" value="" maxlength="1"></td>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">9</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_9_7" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 10 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">8</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_2" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">8</div>
+            <div class="bottomNumber">8</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_3" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_4" value="" maxlength="1"></td>
+        <td class="cellTotal">
+            <div class="topNumber">&nbsp;</div>
+            <div class="bottomNumber">4</div>
+        </td>
+        <td class="cellTotal">
+            <div class="topNumber">3</div>
+            <div class="bottomNumber">10</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_10_6" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 11 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">12</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_3" value="" maxlength="1"></td>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">14</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_11_7" value="" maxlength="1"></td>
+    </tr>
+    <!-- Row 12 - 10 cells -->
+    <tr>
+        <td class="cellTotal">
+            <div class="topNumber">24</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_1" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_2" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_3" value="" maxlength="1"></td>
+        <td class="cellShaded"></td>
+        <td class="cellTotal">
+            <div class="topNumber">26</div>
+            <div class="bottomNumber">&nbsp;</div>
+        </td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_4" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_5" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_6" value="" maxlength="1"></td>
+        <td class="cellNumber"><input class="cellNumberInput" name="cell_12_7" value="" maxlength="1"></td>
+    </tr>
+</table>
+                    <div class="controls">
+                        <button type="button" class="inputbutton checkbutton" onclick="checkSolution()">Verify</button>
+                        <!-- <button type="button" class="inputbutton pausebutton" onclick="pauseGame()">Pause</button> -->
+                        <button type="button" class="inputbutton" onclick="clearBoard()">Reset</button>
+                        <!-- <button type="button" class="inputbutton" style="background: #3498db;" onclick="fillSolution()">Fill Solution</button> -->
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>Operational Constraints</h3>
+            <ul>
+                <li>Fill all white cells with digits 0-9</li>
+                <li>Each "word" (horizontal or vertical run of white cells) must add up to the clue number</li>
+                <li>Digits cannot repeat within a single word</li>
+                <li>Black cells with diagonal slashes contain clue numbers</li>
+                <li>Red Number = Down sum (vertical word)</li>
+                <li>Blue Number = Across sum (horizontal word)</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Incognito Investigation | Obsidiverse | 2026</p>
+        </div>
+        </div>
+        <!-- RRO Completion Modal -->
+<div id="rroModal" class="rro-modal">
+    <div class="rro-modal-content">
+        <h2>VERIFICATION COMPLETE</h2>
+        <p>
+            Logical consistency confirmed.<br>
+            No deviations detected.
+        </p>
+
+        <div class="rro-meta">
+            <div style="font-size: 1.2rem;">645</div>
+            <div>Status: PASSED</div>
+            <div>Audit Log: Updated</div>
+        </div>
+
+        <button onclick="closeRROModal()">Proceed</button>
+    </div>
+</div>
+
+    </div>
+
+    <script>
+        
+        // SECURITY MEASURES - Anti-cheat protection
+        (function() {
+            // Disable right-click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Disable keyboard shortcuts for DevTools
+            document.addEventListener('keydown', function(e) {
+                // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+                if (e.keyCode === 123 || 
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) ||
+                    (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Developer tools are disabled for this competition.');
+                    return false;
+                }
+            });
+            
+            // Hide anti-cheat overlay after 2 seconds
+            setTimeout(function() {
+                document.getElementById('anti-cheat').style.display = 'none';
+            }, 2000);
+            
+            // Detect if DevTools is open (basic detection)
+            setInterval(function() {
+                const widthThreshold = window.outerWidth - window.innerWidth > 160;
+                const heightThreshold = window.outerHeight - window.innerHeight > 160;
+                
+                if (widthThreshold || heightThreshold) {
+                    document.getElementById('anti-cheat').style.display = 'flex';
+                    document.body.innerHTML = '<h1 style="color:red;text-align:center;margin-top:50px;">Developer tools detected! Competition integrity compromised.</h1>';
+                }
+            }, 1000);
+        })();
+
+        // Create geometric shapes
+        function createShapes() {
+            const background = document.getElementById('geometric-background');
+            const shapeTypes = ['square', 'circle', 'triangle', 'rectangle'];
+            
+            for (let i = 0; i < 40; i++) {
+                const shape = document.createElement('div');
+                const shapeClass = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+                shape.className = `shape ${shapeClass}`;
+                
+                // Random positions
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                
+                // Random animation properties
+                const delay = Math.random() * 10;
+                const duration = Math.random() * 10 + 10;
+                
+                // Apply styles
+                shape.style.left = `${posX}%`;
+                shape.style.top = `${posY}%`;
+                shape.style.animationDelay = `${delay}s`;
+                shape.style.animationDuration = `${duration}s`;
+                
+                background.appendChild(shape);
+            }
+        }
+
+        // Create particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Random positions
+                const posX = Math.random() * 100;
+                const posY = Math.random() * 100;
+                
+                // Random animation properties
+                const delay = Math.random() * 8;
+                const duration = Math.random() * 4 + 4;
+                
+                // Apply styles
+                particle.style.left = `${posX}%`;
+                particle.style.top = `${posY}%`;
+                particle.style.animationDelay = `${delay}s`;
+                particle.style.animationDuration = `${duration}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize animation
+        document.addEventListener('DOMContentLoaded', () => {
+            createShapes();
+            createParticles();
+        });
+
+        // Game variables
+        let gamePaused = false;
+
+        // CORRECT solution array
+        const correctSolution = {
+            "cell_2_1": "7", "cell_2_2": "9", "cell_2_3": "5", "cell_2_4": "8",
+            "cell_2_5": "1", "cell_2_6": "3", "cell_2_7": "8",
+            
+            "cell_3_1": "4", "cell_3_2": "5", "cell_3_3": "3", "cell_3_4": "2",
+            "cell_3_5": "2", "cell_3_6": "9", "cell_3_7": "7",
+            
+            "cell_4_1": "0", "cell_4_2": "7",
+            "cell_4_3": "4", "cell_4_4": "9",
+            "cell_4_5": "0", "cell_4_6": "9",
+            
+            "cell_5_1": "1", "cell_5_2": "8",
+            "cell_5_3": "7", "cell_5_4": "8", "cell_5_5": "9", "cell_5_6": "1", "cell_5_7": "3",
+            
+            "cell_6_1": "2", "cell_6_2": "9", "cell_6_3": "8", "cell_6_4": "3",
+            "cell_6_5": "7", "cell_6_6": "6", "cell_6_7": "4", "cell_6_8": "5",
+            
+            "cell_7_1": "8", "cell_7_2": "0",
+            "cell_7_3": "0", "cell_7_4": "8",
+            
+            "cell_8_1": "4", "cell_8_2": "1", "cell_8_3": "5", "cell_8_4": "3",
+            "cell_8_5": "8", "cell_8_6": "6", "cell_8_7": "7", "cell_8_8": "9",
+            
+            "cell_9_1": "8", "cell_9_2": "2", "cell_9_3": "7", "cell_9_4": "4", "cell_9_5": "9",
+            "cell_9_6": "0", "cell_9_7": "9",
+            
+            "cell_10_1": "5", "cell_10_2": "3",
+            "cell_10_3": "1", "cell_10_4": "7",
+            "cell_10_5": "1", "cell_10_6": "2",
+            
+            "cell_11_1": "7", "cell_11_2": "5", "cell_11_3": "0",
+            "cell_11_4": "0", "cell_11_5": "1", "cell_11_6": "6", "cell_11_7": "7",
+            
+            "cell_12_1": "9", "cell_12_2": "7", "cell_12_3": "8",
+            "cell_12_4": "4", "cell_12_5": "9", "cell_12_6": "5", "cell_12_7": "8"
+        };
+
+        // Get cell value from input
+        function getCellValue(cellName) {
+            const input = document.querySelector(`input[name="${cellName}"]`);
+            if (input) {
+                return input.value.trim();
+            }
+            return "";
+        }
+
+        // Set cell value
+        function setCellValue(cellName, value) {
+            const input = document.querySelector(`input[name="${cellName}"]`);
+            if (input) {
+                input.value = value;
+            }
+        }
+
+        // Check against the correct solution
+        function checkAgainstSolution() {
+            for (const [cellName, expectedValue] of Object.entries(correctSolution)) {
+                const actualValue = getCellValue(cellName);
+                if (actualValue !== expectedValue) {
+                    return {
+                        valid: false,
+                        reason: `Try Again`
+                    };
+                }
+            }
+            return { valid: true };
+        }
+
+        // Check if all cells are filled
+        function areAllCellsFilled() {
+            const inputs = document.querySelectorAll('.cellNumberInput');
+            for (const input of inputs) {
+                if (input.value.trim() === '') {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Main check solution function
+        function checkSolution() {
+            if (gamePaused) {
+                alert('Game is paused. Resume to check solution.');
+                return;
+            }
+
+            const solutionResult = checkAgainstSolution();
+            if (!solutionResult.valid) {
+                alert(`Incorrect: ${solutionResult.reason}`);
+                return;
+            }
+
+            showRROModal();
+
+        }
+
+        // Clear board
+        function clearBoard() {
+            if (confirm('Are you sure you want to clear the entire board?')) {
+                const inputs = document.querySelectorAll('.cellNumberInput');
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+            }
+        }
+
+        // Auto-advance to next cell
+        document.querySelectorAll('.cellNumberInput').forEach(input => {
+            input.addEventListener('input', function(e) {
+                if (this.value.length === 1 && /[0-9]/.test(this.value)) {
+                    const name = this.name;
+                    const match = name.match(/cell_(\d+)_(\d+)/);
+                    if (match) {
+                        let row = parseInt(match[1]);
+                        let col = parseInt(match[2]);
+                        
+                        let nextInput = document.querySelector(`input[name="cell_${row}_${col + 1}"]`);
+                        if (!nextInput || nextInput.value) {
+                            nextInput = document.querySelector(`input[name="cell_${row + 1}_1"]`);
+                        }
+                        
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+                }
+            });
+            
+            // Allow only numbers 0-9
+            input.addEventListener('keypress', function(e) {
+                if (e.key < '0' || e.key > '9') {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (gamePaused) return;
+            
+            const active = document.activeElement;
+            if (active.classList.contains('cellNumberInput')) {
+                const name = active.name;
+                const match = name.match(/cell_(\d+)_(\d+)/);
+                if (match) {
+                    let row = parseInt(match[1]);
+                    let col = parseInt(match[2]);
+                    
+                    let nextInput = null;
+                    
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            nextInput = document.querySelector(`input[name="cell_${row - 1}_${col}"]`);
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            nextInput = document.querySelector(`input[name="cell_${row + 1}_${col}"]`);
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            nextInput = document.querySelector(`input[name="cell_${row}_${col - 1}"]`);
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            nextInput = document.querySelector(`input[name="cell_${row}_${col + 1}"]`);
+                            break;
+                    }
+                    
+                    if (nextInput) {
+                        nextInput.focus();
+                    }
+                }
+            }
+        });
+
+        // Initialize tooltips for clue help
+        document.querySelectorAll('.topNumber, .bottomNumber').forEach(element => {
+            element.addEventListener('click', function() {
+                const clueText = this.textContent.trim();
+                if (clueText) {
+                    const isTop = this.classList.contains('topNumber');
+                    const type = isTop ? 'Across' : 'Down';
+                    alert(`${type} sum: ${clueText}`);
+                }
+            });
+        });
+        function showRROModal() {
+    document.getElementById("rroModal").style.display = "flex";
+}
+
+function closeRROModal() {
+    document.getElementById("rroModal").style.display = "none";
+}
+
+    </script>
+</body>
+</html>

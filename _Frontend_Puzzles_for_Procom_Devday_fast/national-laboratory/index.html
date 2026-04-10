@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="trace" content="trace part1:X0xFRlRfQV9UUkFDRQ==">
+  <title>Upside Down Signal Division — Signal Recovery Terminal</title>
+  <!--
+    ╔══════════════════════════════════════════════════════════════╗
+    ║   Upside Down Signal Division — CLASSIFIED SYSTEM           ║
+    ║   DEPARTMENT OF ENERGY — RESTRICTED ACCESS                  ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║                                                              ║
+    ║   You're already looking in the right places.               ║
+    ║   Most people only see what the screen shows them.          ║
+    ║   You see more.                                             ║
+    ║                                                              ║
+    ║   [FRAGMENT_001]: Keep looking. The signal is fragmented    ║
+    ║   across the system. Not all data is rendered to the page.  ║
+    ║                                                              ║
+    ╚══════════════════════════════════════════════════════════════╝
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       ATMOSPHERIC BACKGROUND LAYERS
+       ============================================================ -->
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       SITE HEADER
+       ============================================================ -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+
+      <div class="header-logo">
+        <div class="doe-seal">
+          <span class="seal-ring">◈</span>
+        </div>
+        <div class="doe-text">
+          <span class="doe-top">U.S. DEPT. OF ENERGY</span>
+          <span class="doe-bottom">HAWKINS, IN — EST. 1953</span>
+        </div>
+      </div>
+
+      <div class="header-title">
+        <h1 class="title-main glitch" data-text="HAWKINS NATIONAL LABORATORY">
+          Upside Down Signal Division
+        </h1>
+        <p class="title-sub">
+          <span class="sub-bracket">▸</span>
+          SIGNAL RECOVERY TERMINAL — CLASSIFIED ACCESS ONLY
+          <span class="sub-bracket">◂</span>
+        </p>
+      </div>
+
+      <div class="header-status">
+        <div class="status-row">
+          <span class="status-dot blink-fast"></span>
+          <span class="status-text">LIVE FEED</span>
+        </div>
+        <div class="status-row">
+          <span class="status-dot status-orange blink-slow"></span>
+          <span class="status-text">SIGNAL: PARTIAL</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="header-rule"></div>
+  </header>
+
+  <!-- ============================================================
+       MAIN THREE-COLUMN LAYOUT
+       ============================================================ -->
+  <main class="layout" role="main">
+
+    <!-- ──────────────────────────────────────────────────────────
+         LEFT SIDEBAR — System Statistics
+         ────────────────────────────────────────────────────────── -->
+    <aside class="sidebar sidebar-left" aria-label="System Statistics">
+
+      <div class="panel">
+        <div class="panel-title">SYS_STATUS</div>
+        <ul class="stat-list">
+          <li>
+            <span class="stat-key">UPTIME</span>
+            <span class="stat-val" id="uptime">00:00:00</span>
+          </li>
+          <li>
+            <span class="stat-key">NODE</span>
+            <span class="stat-val blink-slow">HAWKINS-04</span>
+          </li>
+          <li>
+            <span class="stat-key">SIGNAL</span>
+            <span class="stat-val text-red">FRAGMENTED</span>
+          </li>
+          <li>
+            <span class="stat-key">ENCRYPT</span>
+            <span class="stat-val text-yellow">AES-256</span>
+          </li>
+          <li>
+            <span class="stat-key">GATE</span>
+            <span class="stat-val text-red blink-slow">UNSTABLE</span>
+          </li>
+          <li>
+            <span class="stat-key">OPERATOR</span>
+            <span class="stat-val">DR. BRENNER</span>
+          </li>
+          <li>
+            <span class="stat-key">SUBJECT</span>
+            <span class="stat-val text-red">UNLOCATED</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">FREQUENCY_MAP</div>
+        <canvas id="freqCanvas" width="190" height="72" aria-label="Frequency visualization"></canvas>
+        <div class="freq-labels">
+          <span>0Hz</span><span>500Hz</span><span>1kHz</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">LAST_KNOWN_COORDS</div>
+        <p class="coord-line">LAT <span class="text-yellow">39.9231° N</span></p>
+        <p class="coord-line">LON <span class="text-yellow">86.8612° W</span></p>
+        <p class="coord-line">ALT <span class="text-red blink-slow">CLASSIFIED</span></p>
+        <p class="coord-line">SEC <span class="text-red">7-G / SUBLEVEL 3</span></p>
+        <!--
+          [FRAGMENT_PLACEHOLDER_ALPHA]
+          Coordinates to the real location are encoded elsewhere.
+          Check what the browser doesn't render.
+        -->
+      </div>
+
+    </aside>
+
+    <!-- ──────────────────────────────────────────────────────────
+         CENTER PANEL — Main Terminal
+         ────────────────────────────────────────────────────────── -->
+    <section class="center-col" aria-label="Recovery Terminal">
+
+      <div class="terminal" id="terminal" role="log" aria-live="polite" aria-label="System log">
+        <div class="terminal-topbar">
+          <div class="terminal-dots">
+            <span class="tdot tdot-red"></span>
+            <span class="tdot tdot-yellow"></span>
+            <span class="tdot tdot-green"></span>
+          </div>
+          <span class="terminal-title">
+            RECOVERY_TERMINAL_v4.1 &nbsp;|&nbsp; USER:
+            <span class="text-green">DR_OWENS</span> &nbsp;|&nbsp;
+            NODE: <span class="text-green">Upside Down-04</span>
+          </span>
+          <span class="terminal-clock" id="termClock">--:--:--</span>
+        </div>
+
+        <div class="terminal-body" id="terminalBody">
+          <!-- Terminal log lines are injected by script.js -->
+        </div>
+
+        <div class="terminal-inputrow">
+          <span class="prompt">root@hawkins-04:~$&nbsp;</span>
+          <span class="cursor-typed" id="cursorLine"></span>
+          <span class="cursor blink-fast" aria-hidden="true">█</span>
+        </div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <nav class="actions" aria-label="Terminal actions">
+        <button class="btn btn-red" id="btnScan" data-action="scan" data-signal="trace part1:VEhFX0RFVkVMT1BFUg==">
+          <!-- find the second half in this file from the benninging hehe -->
+          <span class="btn-corner tl"></span>
+          <span class="btn-corner tr"></span>
+          <span class="btn-corner bl"></span>
+          <span class="btn-corner br"></span>
+          <span class="btn-glyph">⬡</span>
+          <span class="btn-label">SCAN SYSTEM</span>
+        </button>
+        <button class="btn btn-blue" id="btnDecode" data-action="decode">
+          <span class="btn-corner tl"></span>
+          <span class="btn-corner tr"></span>
+          <span class="btn-corner bl"></span>
+          <span class="btn-corner br"></span>
+          <span class="btn-glyph">⬡</span>
+          <span class="btn-label">DECODE SIGNAL</span>
+        </button>
+        <button class="btn btn-green" id="btnAnalyze" data-action="analyze">
+          <span class="btn-corner tl"></span>
+          <span class="btn-corner tr"></span>
+          <span class="btn-corner bl"></span>
+          <span class="btn-corner br"></span>
+          <span class="btn-glyph">⬡</span>
+          <span class="btn-label">ANALYZE TRANSMISSION</span>
+        </button>
+      </nav>
+
+      <!-- SCAN PROGRESS BAR (hidden until scan triggered) -->
+      <div class="scan-bar-wrap" id="scanBarWrap" aria-hidden="true">
+        <div class="scan-bar-label">SCANNING —</div>
+        <div class="scan-bar-track">
+          <div class="scan-bar-fill" id="scanBarFill"></div>
+        </div>
+        <div class="scan-bar-pct" id="scanBarPct">0%</div>
+      </div>
+
+    </section>
+
+    <!-- ──────────────────────────────────────────────────────────
+         RIGHT SIDEBAR — Signal Monitor & Alerts
+         ────────────────────────────────────────────────────────── -->
+    <aside class="sidebar sidebar-right" aria-label="Signal Monitor">
+
+      <div class="panel">
+        <div class="panel-title">SIGNAL_WAVEFORM</div>
+        <canvas id="signalCanvas" width="190" height="90" aria-label="Signal waveform"></canvas>
+        <p class="signal-label">
+          CH: <span class="text-red">057-ALPHA</span>
+          &nbsp;|&nbsp;
+          PWR: <span class="text-yellow">37%</span>
+        </p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">ACCESS_LOG</div>
+        <ul class="access-list" id="accessLog" aria-label="Access log entries">
+          <li><span class="ts">03:12:44</span> GATE PROBE <span class="text-red">FAIL</span></li>
+          <li><span class="ts">03:14:01</span> DECRYPT ATTEMPT <span class="text-yellow">PART</span></li>
+          <li><span class="ts">03:19:33</span> SIGNAL PING <span class="text-green">OK</span></li>
+          <li><span class="ts">03:22:17</span> NODE SYNC <span class="text-red">FAIL</span></li>
+          <li><span class="ts">03:28:59</span> TRACE INIT <span class="text-green">OK</span></li>
+        </ul>
+      </div>
+
+      <div class="panel panel-alert">
+        <div class="panel-title text-red">⚠ ACTIVE_ALERT</div>
+        <!--
+          [FRAGMENT_PLACEHOLDER_BETA]
+          Developers often hide things where users rarely look.
+          The answer is not always on the screen.
+        -->
+        <p class="alert-line blink-slow">DIMENSIONAL BREACH DETECTED</p>
+        <p class="alert-line">SECTOR: <span class="text-red">7-G SUBLEVEL</span></p>
+        <p class="alert-line">SUBJECT STATUS: <span class="text-red">UNKNOWN</span></p>
+        <p class="alert-line hint-msg">
+          <span class="text-dim">// Only those who inspect the system carefully will find the fragments.</span>
+        </p>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="site-footer" role="contentinfo">
+    <span>Upside Down Signal Division &copy; 1984</span>
+    <span class="footer-center">
+      ALL TRANSMISSIONS MONITORED — CLEARANCE LEVEL-4 REQUIRED
+      <!--
+        [FRAGMENT_PLACEHOLDER_GAMMA]
+        You've found three placeholders. There are more.
+        The source reveals what the screen conceals.
+      -->
+    </span>
+    <span>BUILD: <span class="text-green">4.1.0-SECURE</span></span>
+  </footer>
+
+  <!-- ============================================================
+       FULL-SCREEN GLITCH OVERLAY (JS-triggered)
+       ============================================================ -->
+  <div class="glitch-overlay" id="glitchOverlay" aria-hidden="true"></div>
+
+  <!-- ============================================================
+       POPUP MODAL for decoded messages
+       ============================================================ -->
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">DECODED_FRAGMENT</span>
+        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

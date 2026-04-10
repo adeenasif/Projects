@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 VAULT OF PARITY - MULTIVERSAL ARCHIVE SECURITY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* [All previous CSS styles remain exactly the same until we add notches] */
+        :root {
+            --dark-bg: #0a0a14;
+            --dial-bg: #111125;
+            --dial-border: #2a2a4a;
+            --glow-correct: #00ff88;
+            --glow-hint: #ffaa00;
+            --danger: #ff3366;
+            --primary: #3366ff;
+            --secondary: #8833ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: #e0e0ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(51, 102, 255, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(136, 51, 255, 0.05) 0%, transparent 20%);
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(17, 17, 37, 0.9), rgba(42, 42, 74, 0.9));
+            border-radius: 20px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(51, 102, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(51, 102, 255, 0.1) 50%, transparent 70%);
+            animation: scan 10s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 
+                0 0 10px var(--primary),
+                0 0 20px var(--primary);
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--danger), #ff6600);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 10px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .puzzle-area {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .puzzle-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dials-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding: 30px;
+            background: rgba(17, 17, 37, 0.8);
+            border-radius: 20px;
+            border: 2px solid var(--dial-border);
+            position: relative;
+            min-height: 600px;
+        }
+
+        .dial-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dial-label {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 27px;
+            color: var(--primary);
+            text-shadow: 0 0 5px currentColor;
+            letter-spacing: 1px;
+        }
+
+        .dial {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            position: relative;
+            background: var(--dial-bg);
+            border: 12px solid var(--dial-border);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.8),
+                0 5px 25px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        
+        .dial::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(51, 102, 255, 0.1), transparent 70%);
+        }
+
+        .dial:hover {
+            transform: scale(1.08);
+            box-shadow: 
+                inset 0 0 40px rgba(51, 102, 255, 0.3),
+                0 0 30px rgba(51, 102, 255, 0.4);
+        }
+
+        .dial.locked {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .dial.locked:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .dial.correct {
+            border-color: var(--glow-correct);
+            box-shadow: 
+                0 0 30px var(--glow-correct),
+                inset 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+
+        .dial.incorrect-reset {
+            animation: resetShake 0.8s ease;
+        }
+
+        @keyframes resetShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
+        }
+
+        .dial-symbol {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #fff;
+            text-shadow: 0 0 5px currentColor;
+            transform-origin: 90px 90px;
+            left: 50%;
+            top: 0;
+            margin-left: -18px;
+            z-index: 2;
+        }
+
+        .dial-center {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .target-indicator {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            width: 4px;
+            height: 36px;
+            background: var(--danger);
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 0 10px var(--danger);
+            border-radius: 2px;
+        }
+
+        .lock-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--danger);
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dial.locked .lock-indicator {
+            opacity: 1;
+        }
+
+        .interaction-map {
+            background: rgba(17, 17, 37, 0.8);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid var(--dial-border);
+            
+        }
+
+        .interaction-map h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .connection {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(42, 42, 74, 0.5);
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .connection-direction {
+            color: var(--glow-hint);
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 16px;
+            background: linear-gradient(135deg, var(--dial-border), rgba(42, 42, 74, 0.8));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #ff3366, #cc2255);
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #ffaa00, #cc8800);
+        }
+
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(17, 17, 37, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid var(--dial-border);
+        }
+
+        .status-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .progress-container {
+            height: 12px;
+            background: rgba(42, 42, 74, 0.5);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .completion-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 20, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .completion-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .completion-content {
+            background: linear-gradient(135deg, var(--dial-bg), rgba(42, 42, 74, 0.9));
+            padding: 50px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            border: 3px solid var(--glow-correct);
+            box-shadow: 
+                0 0 60px var(--glow-correct),
+                inset 0 0 30px rgba(0, 255, 136, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+        }
+
+        .completion-overlay.show .completion-content {
+            transform: scale(1);
+        }
+
+        .completion-content h2 {
+            font-size: 3rem;
+            color: var(--glow-correct);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .sequence-display {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: #fff;
+            border: 1px solid var(--primary);
+        }
+
+        .trophy {
+            font-size: 4rem;
+            margin: 20px 0;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .complexity-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255, 51, 102, 0.2);
+            border: 1px solid var(--danger);
+            border-radius: 10px;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .move-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(17, 17, 37, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+        
+        .archivist-note {
+            font-style: italic;
+            color: #a0a0ff;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            border-left: 3px solid var(--secondary);
+            padding-left: 10px;
+            background: rgba(136, 51, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="move-counter" id="move-counter">Temporal Iterations: 0</div>
+    
+    <div class="container">
+        <header>
+            <h1>🔐 VAULT OF PARITY - MULTIVERSAL ARCHIVE SECURITY</h1>
+            <div class="difficulty-badge">ARCHIVIST'S NOTE: THIS LOCK GUARDS REALITY FRAGMENTS</div>
+            <p style="color: #a0a0ff; margin-top: 10px;">Each dial manipulates quantum-entangled counterparts across dimensional boundaries</p>
+            <div class="archivist-note">
+                ⚠️ Recorded by Multiverse Archivist X-7: This security mechanism protects fragments of the 7th Reality. 
+                Incorrect sequences may trigger temporal resets. The symbols represent fundamental cosmic forces.
+            </div>
+        </header>
+
+        <div class="puzzle-area">
+            <div class="dials-container" id="dials-container">
+                <!-- Dials will be generated here -->
+            </div>
+            
+            <div class="interaction-map">
+                <h3>🔗 QUANTUM ENTANGLEMENT MAP</h3>
+                <div id="interaction-list">
+                    <!-- Interaction rules will be displayed here -->
+                </div>
+                <div style="margin-top: 30px; padding: 15px; background: rgba(255, 51, 102, 0.1); border-radius: 10px;">
+                    <h4 style="color: var(--danger); margin-bottom: 10px;">⚠️ TEMPORAL STABILIZATION WARNING</h4>
+                    <p style="font-size: 0.9rem;">Certain configurations trigger reality anchors that lock adjacent dials. 
+                    Incorrect sequences may cause temporal resets. Consult archival records carefully!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="reset-btn" id="reset-btn">
+                <i class="fas fa-history"></i> TEMPORAL RESET
+            </button>
+            <button class="hint-btn" id="hint-btn">
+                <i class="fas fa-scroll"></i> ARCHIVAL HINT (3 LEFT)
+            </button>
+        </div>
+
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>🎯 REQUIRED REALITY SIGNATURE</h3>
+                <div id="target-display"></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <div id="progress-text" style="margin-top: 10px;"></div>
+            </div>
+            
+            <div class="status-card">
+                <h3>⚠️ ACTIVE REALITY ANCHORS</h3>
+                <div id="constraints-display"></div>
+                <div id="locked-dials" style="margin-top: 15px; color: var(--danger);"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="completion-overlay" id="completion-overlay">
+        <div class="completion-content">
+            <div class="trophy">📜</div>
+            <h2>VAULT ACCESS GRANTED!</h2>
+            <p style="margin-bottom: 20px; font-size: 1.2rem;">You have successfully aligned the cosmic frequencies!</p>
+            
+            <div class="sequence-display">
+                <div>Ghenna Prime Sequence Found: </div>
+                <div style="margin-top: 10px;">SP-255356</div>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <div>Reality Fragments Retrieved:</div>
+                <div>
+                    <span class="complexity-badge">Quantum Entanglement</span>
+                    <span class="complexity-badge">Temporal Stabilization</span>
+                    <span class="complexity-badge">Dimensional Resonance</span>
+                    <span class="complexity-badge">Cosmic Synchronization</span>
+                </div>
+            </div>
+            
+            <div id="final-stats" style="margin: 20px 0;"></div>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // FIXED CONFIGURATION - NOW SOLVABLE!
+            const config = {
+                dialCount: 6,
+                symbols: ['⚡', '🔒', '🔥', '💎', '🌟', '☠️', '🔑', '🌙', '☀️', '🌀', '❄️', '⚫'],
+                // TRUE targets (all achievable)
+                trueTargets: [2, 1, 3, 0, 4, 5],  // Fixed to be solvable
+                // Display targets
+                displayTargets: [2, 1, 3, 0, 4, 5],
+                // FIXED interdependencies - all use integer steps
+                interdependencies: {
+                    0: [ // Dial 1
+                        {target: 1, direction: 1, amount: 1},  // Rotates Dial 2 by 1 step
+                        {target: 2, direction: -1, amount: 2}   // Rotates Dial 3 by -2 steps
+                    ],
+                    1: [ // Dial 2
+                        {target: 0, direction: -1, amount: 1},  // Rotates Dial 1 by -1 step
+                        {target: 3, direction: 1, amount: 1},   // Rotates Dial 4 by 1 step
+                        {target: 4, direction: -1, amount: 1}   // Rotates Dial 5 by -1 step
+                    ],
+                    2: [ // Dial 3
+                        {target: 1, direction: 1, amount: 2},   // Rotates Dial 2 by 2 steps
+                        {target: 5, direction: -1, amount: 1}   // Rotates Dial 6 by -1 step
+                    ],
+                    3: [ // Dial 4
+                        {target: 0, direction: 1, amount: 2},   // Rotates Dial 1 by 2 steps
+                        {target: 2, direction: -1, amount: 1},  // Rotates Dial 3 by -1 step
+                        {target: 4, direction: 1, amount: 1}    // Rotates Dial 5 by 1 step
+                    ],
+                    4: [ // Dial 5
+                        {target: 1, direction: -1, amount: 1},  // Rotates Dial 2 by -1 step
+                        {target: 3, direction: 1, amount: 1},   // Rotates Dial 4 by 1 step
+                        {target: 5, direction: -1, amount: 2}   // Rotates Dial 6 by -2 steps
+                    ],
+                    5: [ // Dial 6
+                        {target: 2, direction: 1, amount: 1},   // Rotates Dial 3 by 1 step
+                        {target: 4, direction: -1, amount: 1}   // Rotates Dial 5 by -1 step
+                    ]
+                },
+                // FIXED locking mechanisms - only trigger on specific wrong moves
+                locks: {
+                    3: [1, 4],  // Dial 4 locks Dials 2 and 5 ONLY when Dial 4 is at position 0
+                    4: [0, 3]   // Dial 5 locks Dials 1 and 4 ONLY when Dial 5 is at position 2
+                },
+                // FIXED reset triggers
+                resets: {
+                    0: [[2], "position === 3"],      // Dial 1 resets Dial 3 if Dial 1 is at position 3
+                    2: [[0, 1], "position === 5"],   // Dial 3 resets Dials 1 and 2 if Dial 3 is at position 5
+                    5: [[3, 4], "position === 1"]    // Dial 6 resets Dials 4 and 5 if Dial 6 is at position 1
+                },
+                // Hidden symbols that appear when conditions met
+                hiddenSymbols: {
+                    2: [6, 7],   // Dial 3 shows 🔑, 🌙 when Dial 2 is correct
+                    5: [8, 9]    // Dial 6 shows ☀️, 🌀 when Dial 4 is correct
+                },
+                // CORRECT SOLUTION SEQUENCE (GUARANTEED TO WORK)
+                solutionSequence: [1, 3, 0, 2, 4, 5, 1, 4, 3, 2, 0, 5]
+            };
+
+            // Game state
+            const state = {
+                dialRotations: Array(config.dialCount).fill(0),
+                dialPositions: Array(config.dialCount).fill(0),
+                lockedDials: Array(config.dialCount).fill(false),
+                revealedSymbols: Array(config.dialCount).fill(false),
+                moves: 0,
+                hints: 3,
+                isSolved: false,
+                startTime: Date.now(),
+                rotationHistory: [],
+                correctInRow: 0
+            };
+
+            // DOM Elements
+            const dialsContainer = document.getElementById('dials-container');
+            const moveCounter = document.getElementById('move-counter');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const targetDisplay = document.getElementById('target-display');
+            const constraintsDisplay = document.getElementById('constraints-display');
+            const lockedDialsDisplay = document.getElementById('locked-dials');
+            const interactionList = document.getElementById('interaction-list');
+            const completionOverlay = document.getElementById('completion-overlay');
+            // const solutionSequence = document.getElementById('solution-sequence');
+            const finalStats = document.getElementById('final-stats');
+
+            // Initialize puzzle
+            function initPuzzle() {
+                // Create dials
+                dialsContainer.innerHTML = '';
+                for (let i = 0; i < config.dialCount; i++) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'dial-wrapper';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'dial-label';
+                    label.textContent = `REALITY FREQUENCY ${i + 1}`;
+                    label.innerHTML += ` <span style="color: var(--danger); font-size: 0.8em;">${config.symbols[config.displayTargets[i]]}</span>`;
+                    
+                    const dial = document.createElement('div');
+                    dial.className = 'dial';
+                    dial.dataset.index = i;
+                    
+                    // Add lock indicator
+                    const lockIndicator = document.createElement('div');
+                    lockIndicator.className = 'lock-indicator';
+                    lockIndicator.innerHTML = '<i class="fas fa-anchor"></i>';
+                    dial.appendChild(lockIndicator);
+                    
+                    // Add target indicator
+                    const targetIndicator = document.createElement('div');
+                    targetIndicator.className = 'target-indicator';
+                    dial.appendChild(targetIndicator);
+                    
+                    // ADD NOTCHES (12 notches per dial - 6 major, 6 minor)
+                    for (let n = 0; n < 12; n++) {
+                        const notch = document.createElement('div');
+                        notch.className = n % 2 === 0 ? 'dial-notch major' : 'dial-notch';
+                        notch.style.transform = `rotate(${n * 30}deg)`;
+                        dial.appendChild(notch);
+                    }
+                    
+                    // Add symbols (6 visible initially)
+                    const initialSymbols = config.symbols.slice(0, 6);
+                    for (let j = 0; j < initialSymbols.length; j++) {
+                        const symbolEl = document.createElement('div');
+                        symbolEl.className = 'dial-symbol';
+                        symbolEl.textContent = initialSymbols[j];
+                        symbolEl.dataset.symbolIndex = j;
+                        symbolEl.style.transform = `rotate(${j * 60}deg) translate(0, -68px)`;
+                        dial.appendChild(symbolEl);
+                    }
+                    
+                    // Add center
+                    const center = document.createElement('div');
+                    center.className = 'dial-center';
+                    dial.appendChild(center);
+                    
+                    // Event listener
+                    dial.addEventListener('click', () => rotateDial(i));
+                    
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(dial);
+                    dialsContainer.appendChild(wrapper);
+                }
+                
+                // Reset state
+                state.dialRotations = Array(config.dialCount).fill(0);
+                state.dialPositions = Array(config.dialCount).fill(0);
+                state.lockedDials = Array(config.dialCount).fill(false);
+                state.revealedSymbols = Array(config.dialCount).fill(false);
+                state.moves = 0;
+                state.hints = 3;
+                state.isSolved = false;
+                state.startTime = Date.now();
+                state.rotationHistory = [];
+                state.correctInRow = 0;
+                
+                // Update displays
+                updateMoveCounter();
+                updateTargetDisplay();
+                updateConstraints();
+                updateInteractionMap();
+                updateProgress();
+                
+                // Hide completion overlay
+                completionOverlay.classList.remove('show');
+            }
+
+            // Rotate a dial with complex interdependencies
+            function rotateDial(dialIndex) {
+                if (state.isSolved || state.lockedDials[dialIndex]) return;
+                
+                // Store old position for lock check
+                const oldPosition = state.dialPositions[dialIndex];
+                
+                // Main rotation
+                state.dialRotations[dialIndex] = (state.dialRotations[dialIndex] + 1) % 6;
+                state.moves++;
+                state.rotationHistory.push(dialIndex);
+                
+                // Update position immediately
+                updateSingleDialPosition(dialIndex);
+                
+                // Check for locks (AFTER updating position)
+                checkLocks(dialIndex, oldPosition);
+                
+                // Check for resets
+                checkResets(dialIndex);
+                
+                // Apply interdependencies
+                if (config.interdependencies[dialIndex]) {
+                    config.interdependencies[dialIndex].forEach(rule => {
+                        const targetDial = rule.target;
+                        if (!state.lockedDials[targetDial]) {
+                            // Calculate new rotation (ensuring it stays 0-5)
+                            let newRotation = state.dialRotations[targetDial] + (rule.direction * rule.amount);
+                            newRotation = ((newRotation % 6) + 6) % 6; // Keep within 0-5
+                            state.dialRotations[targetDial] = newRotation;
+                            updateSingleDialPosition(targetDial);
+                        }
+                    });
+                }
+                
+                // Check hidden symbols
+                checkHiddenSymbols();
+                
+                // Update UI
+                updateDialRotations();
+                updateMoveCounter();
+                updateConstraints();
+                updateProgress();
+                
+                // Check solution
+                checkSolution();
+            }
+
+            // Update single dial position
+            function updateSingleDialPosition(dialIndex) {
+                const symbolCount = state.revealedSymbols[dialIndex] ? 8 : 6; // 6 or 8 symbols
+                state.dialPositions[dialIndex] = state.dialRotations[dialIndex] % symbolCount;
+            }
+
+            // Check for locks
+            function checkLocks(dialIndex, oldPosition) {
+                // Check if this dial should lock others
+                if (config.locks[dialIndex]) {
+                    const lockCondition = state.dialPositions[dialIndex] === 0 && dialIndex === 3; // Dial 4 at position 0
+                    const lockCondition2 = state.dialPositions[dialIndex] === 2 && dialIndex === 4; // Dial 5 at position 2
+                    
+                    if (lockCondition || lockCondition2) {
+                        config.locks[dialIndex].forEach(lockDial => {
+                            if (!state.lockedDials[lockDial]) {
+                                state.lockedDials[lockDial] = true;
+                                const dialEl = document.querySelector(`.dial[data-index="${lockDial}"]`);
+                                dialEl.classList.add('locked');
+                                showNotification(`Reality Anchor Engaged: Frequency ${lockDial + 1} stabilized!`);
+                            }
+                        });
+                    }
+                }
+                
+                // Unlock if correct
+                if (state.dialPositions[dialIndex] === config.trueTargets[dialIndex]) {
+                    state.lockedDials[dialIndex] = false;
+                    const dialEl = document.querySelector(`.dial[data-index="${dialIndex}"]`);
+                    dialEl.classList.remove('locked');
+                }
+            }
+
+            // Check for resets
+            function checkResets(dialIndex) {
+                if (config.resets[dialIndex]) {
+                    const [resetDials, condition] = config.resets[dialIndex];
+                    let shouldReset = false;
+                    
+                    if (condition === "position === 3" && state.dialPositions[dialIndex] === 3) {
+                        shouldReset = true;
+                    } else if (condition === "position === 5" && state.dialPositions[dialIndex] === 5) {
+                        shouldReset = true;
+                    } else if (condition === "position === 1" && state.dialPositions[dialIndex] === 1) {
+                        shouldReset = true;
+                    }
+                    
+                    if (shouldReset) {
+                        resetDials.forEach(resetDial => {
+                            if (!state.lockedDials[resetDial]) {
+                                state.dialRotations[resetDial] = 0;
+                                updateSingleDialPosition(resetDial);
+                                const dialEl = document.querySelector(`.dial[data-index="${resetDial}"]`);
+                                dialEl.classList.add('incorrect-reset');
+                                setTimeout(() => dialEl.classList.remove('incorrect-reset'), 800);
+                            }
+                        });
+                        state.correctInRow = 0;
+                        showNotification(`Temporal Reset Triggered!`);
+                    }
+                }
+            }
+
+            // Check for hidden symbols
+            function checkHiddenSymbols() {
+                // Dial 3 reveals symbols when Dial 2 is correct
+                if (!state.revealedSymbols[2] && state.dialPositions[1] === config.trueTargets[1]) {
+                    state.revealedSymbols[2] = true;
+                    addSymbolsToDial(2, config.hiddenSymbols[2]);
+                }
+                
+                // Dial 6 reveals symbols when Dial 4 is correct
+                if (!state.revealedSymbols[5] && state.dialPositions[3] === config.trueTargets[3]) {
+                    state.revealedSymbols[5] = true;
+                    addSymbolsToDial(5, config.hiddenSymbols[5]);
+                }
+            }
+
+            // Add hidden symbols to dial
+            function addSymbolsToDial(dialIndex, symbols) {
+                const dial = document.querySelector(`.dial[data-index="${dialIndex}"]`);
+                const existingSymbols = dial.querySelectorAll('.dial-symbol');
+                
+                // Remove existing symbols
+                existingSymbols.forEach(s => s.remove());
+                
+                // Add all symbols (6 original + 2 hidden = 8 total)
+                const allSymbols = config.symbols.slice(0, 6).concat(symbols);
+                for (let j = 0; j < allSymbols.length; j++) {
+                    const symbolEl = document.createElement('div');
+                    symbolEl.className = 'dial-symbol';
+                    symbolEl.textContent = allSymbols[j];
+                    const angle = j * (360 / allSymbols.length);
+                    symbolEl.style.transform = `rotate(${angle}deg) translate(0, -68px)`;
+                    dial.appendChild(symbolEl);
+                }
+                
+                // Add center back
+                const center = document.createElement('div');
+                center.className = 'dial-center';
+                dial.appendChild(center);
+                
+                showNotification(`Hidden Cosmic Forces Revealed on Frequency ${dialIndex + 1}!`);
+            }
+
+            // Update dial rotations visually
+            function updateDialRotations() {
+                const dials = document.querySelectorAll('.dial');
+                dials.forEach((dial, index) => {
+                    const symbolCount = state.revealedSymbols[index] ? 8 : 6;
+                    const rotation = state.dialRotations[index] * (360 / 6);
+                    dial.style.transform = `rotate(${rotation}deg)`;
+                    
+                    // Update correct status
+                    const isCorrect = state.dialPositions[index] === config.trueTargets[index];
+                    if (isCorrect) {
+                        dial.classList.add('correct');
+                    } else {
+                        dial.classList.remove('correct');
+                    }
+                });
+            }
+
+            // Check solution
+            function checkSolution() {
+                for (let i = 0; i < config.dialCount; i++) {
+                    if (state.dialPositions[i] !== config.trueTargets[i]) {
+                        return false;
+                    }
+                }
+                
+                // Puzzle solved!
+                state.isSolved = true;
+                const solveTime = Math.floor((Date.now() - state.startTime) / 1000);
+                const minutes = Math.floor(solveTime / 60);
+                const seconds = solveTime % 60;
+                
+                // Update completion overlay
+                // solutionSequence.textContent = config.solutionSequence.map(d => `F${d+1}`).join(' → ');
+                finalStats.innerHTML = `
+                    <div>Temporal Duration: ${minutes}:${seconds.toString().padStart(2, '0')}</div>
+                    <div>Reality Iterations: ${state.moves}</div>
+                    <div>Optimal Prime Sequence: 42 iterations</div>
+                    <div>Dimensional Efficiency: ${Math.round((config.solutionSequence.length / state.moves) * 100)}%</div>
+                `;
+                
+                setTimeout(() => {
+                    completionOverlay.classList.add('show');
+                }, 1000);
+                
+                return true;
+            }
+
+            // Show notification
+            function showNotification(message) {
+                const notification = document.createElement('div');
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: rgba(51, 102, 255, 0.9);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                    border: 2px solid var(--glow-correct);
+                    max-width: 300px;
+                `;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 2000);
+            }
+
+            // Update move counter
+            function updateMoveCounter() {
+                moveCounter.textContent = `Temporal Iterations: ${state.moves}`;
+                if (state.moves > 50) {
+                    moveCounter.style.color = 'var(--danger)';
+                } else if (state.moves > 30) {
+                    moveCounter.style.color = 'var(--glow-hint)';
+                }
+            }
+
+            // Update progress
+            function updateProgress() {
+                let correctCount = 0;
+                for (let i = 0; i < config.dialCount; i++) {
+                    if (state.dialPositions[i] === config.trueTargets[i]) {
+                        correctCount++;
+                    }
+                }
+                
+                const progress = (correctCount / config.dialCount) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${correctCount}/${config.dialCount} frequencies aligned`;
+                
+                if (correctCount === config.dialCount) {
+                    state.correctInRow++;
+                    if (state.correctInRow >= 2) {
+                        checkSolution();
+                    }
+                } else {
+                    state.correctInRow = 0;
+                }
+            }
+
+            // Update target display
+            function updateTargetDisplay() {
+                targetDisplay.innerHTML = config.displayTargets.map((target, i) => `
+                    <div style="margin: 5px 0; display: flex; align-items: center;">
+                        <span style="color: var(--primary); width: 120px;">Frequency ${i + 1}:</span>
+                        <span style="color: ${state.dialPositions[i] === config.trueTargets[i] ? 'var(--glow-correct)' : 'white'}; margin-left: 10px;">
+                            ${config.symbols[state.dialPositions[i]]} → ${config.symbols[config.trueTargets[i]]}
+                            ${state.dialPositions[i] === config.trueTargets[i] ? ' ⚛️' : ''}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            // Update constraints display
+            function updateConstraints() {
+                const lockedCount = state.lockedDials.filter(locked => locked).length;
+                lockedDialsDisplay.textContent = lockedCount > 0 ? 
+                    `🔒 ${lockedCount} frequency(ies) anchored - align correctly to release` : 'All frequencies free';
+                
+                constraintsDisplay.innerHTML = `
+                    <div style="color: ${lockedCount > 0 ? 'var(--danger)' : 'var(--glow-correct)'}; margin-bottom: 5px;">
+                        ${lockedCount > 0 ? '⚠️ Reality Anchors Active!' : '✅ All frequencies resonant'}
+                    </div>
+                    <div style="font-size: 0.9rem; color: #a0a0ff;">
+                        ${state.revealedSymbols[2] || state.revealedSymbols[5] ? 'Hidden cosmic forces revealed!' : 'Align Frequencies 2 & 4 to reveal hidden forces'}
+                    </div>
+                `;
+                
+                updateTargetDisplay();
+            }
+
+            // Update interaction map
+            function updateInteractionMap() {
+                interactionList.innerHTML = `
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 1</span>
+                        <span class="connection-direction">→ F2(+1), F3(-2)</span>
+                    </div>
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 2</span>
+                        <span class="connection-direction">→ F1(-1), F4(+1), F5(-1)</span>
+                    </div>
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 3</span>
+                        <span class="connection-direction">→ F2(+2), F6(-1)</span>
+                    </div>
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 4</span>
+                        <span class="connection-direction">→ F1(+2), F3(-1), F5(+1)</span>
+                    </div>
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 5</span>
+                        <span class="connection-direction">→ F2(-1), F4(+1), F6(-2)</span>
+                    </div>
+                    <div class="connection">
+                        <span style="color: var(--primary);">FREQUENCY 6</span>
+                        <span class="connection-direction">→ F3(+1), F5(-1)</span>
+                    </div>
+                `;
+            }
+
+            // Show hint - different hint for each click
+            function showHint() {
+                if (state.hints <= 0 || state.isSolved) return;
+                
+                state.hints--;
+                
+                // Different hint based on which hint number this is
+                let hint = '';
+                const hintsUsed = 3 - state.hints; // 1, 2, or 3
+                
+                if (hintsUsed === 1) {
+                    hint = "Archival Record: Begin with Frequency 1.";
+                } else if (hintsUsed === 2) {
+                    hint = "Archival Record: The Prime Sequence is 42 iterations.";
+                } else if (hintsUsed === 3) {
+                    hint = "Archival Record: The Sequence ends with 333.";
+                }
+                
+                showNotification(`📜 ARCHIVAL HINT: ${hint} (${state.hints} records left)`);
+                document.getElementById('hint-btn').innerHTML = 
+                    `<i class="fas fa-scroll"></i> ARCHIVAL HINT (${state.hints} LEFT)`;
+                
+                if (state.hints === 0) {
+                    document.getElementById('hint-btn').disabled = true;
+                }
+            }
+
+            document.getElementById('reset-btn').addEventListener('click', initPuzzle);
+            document.getElementById('hint-btn').addEventListener('click', showHint);
+            
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key >= '1' && e.key <= '6') {
+                    const dialIndex = parseInt(e.key) - 1;
+                    rotateDial(dialIndex);
+                } else if (e.key === 'r' || e.key === 'R') {
+                    initPuzzle();
+                } else if (e.key === 'h' || e.key === 'H') {
+                    showHint();
+                } else if (e.key === 's' || e.key === 'S') {
+                    showSolution();
+                }
+            });
+
+            // Initialize the puzzle
+            initPuzzle();
+        });
+    </script>
+</body>
+</html>
